@@ -26,14 +26,20 @@
       <!-- Specimen -->
       <section class="spec">
         <div class="spec-left">
-          <div class="spec-line dark fs-8">BORN FROM CLAY</div>
-          <div class="spec-line accent fs-5">EVERY LETTER FIRED</div>
-          <div class="spec-line dark fs-7">ROUGH EDGES</div>
-          <div class="spec-line accent fs-4">FIRED AT 1280°C</div>
-          <div class="spec-line dark fs-9">GLAZE & FORM</div>
-          <div class="spec-line accent fs-5">KILN GEOMETRY</div>
-          <div class="spec-line dark fs-6">SILENCE IN THE KILN</div>
-          <div class="spec-line accent fs-4">CLAY REMEMBERS</div>
+          <div
+            id="spec-carousel"
+            class="spec-carousel"
+            role="region"
+            aria-roledescription="carousel"
+            aria-label="Grog specimen phrases"
+          >
+            <div class="spec-carousel-viewport">
+              <div id="spec-carousel-track" class="spec-carousel-track"></div>
+            </div>
+            <div class="spec-carousel-footer">
+              <div id="spec-carousel-dots" class="spec-carousel-dots" aria-hidden="true"></div>
+            </div>
+          </div>
         </div>
         <div class="spec-right">
           <h2>GROG</h2>
@@ -87,12 +93,62 @@
           </div>
         </div>
         <div class="type-controls">
-          <div class="ctrl-block">
-            <div class="ctrl-row">
-              <label for="ctrl-fontsize">Size</label>
-              <span id="ctrl-fontsize-val" class="ctrl-val">128 PT</span>
+          <div class="ctrl-sliders">
+            <div class="ctrl-block">
+              <div class="ctrl-row">
+                <label for="ctrl-fontsize">Size</label>
+                <span id="ctrl-fontsize-val" class="ctrl-val">128 PT</span>
+              </div>
+              <input id="ctrl-fontsize" class="slider" type="range" min="24" max="220" value="128" />
             </div>
-            <input id="ctrl-fontsize" class="slider" type="range" min="24" max="220" value="128" />
+
+            <div class="ctrl-block">
+              <div class="ctrl-row">
+                <label for="ctrl-glaze-coverage">Glaze coverage</label>
+                <span id="ctrl-glaze-coverage-val" class="ctrl-val">0%</span>
+              </div>
+              <input
+                id="ctrl-glaze-coverage"
+                class="slider"
+                type="range"
+                min="0"
+                max="100"
+                step="1"
+                value="0"
+              />
+            </div>
+
+            <div class="ctrl-block">
+              <div class="ctrl-row">
+                <label for="ctrl-spacing">Spacing</label>
+                <span id="ctrl-spacing-val" class="ctrl-val">0.00 EM</span>
+              </div>
+              <input
+                id="ctrl-spacing"
+                class="slider"
+                type="range"
+                min="-0.05"
+                max="0.4"
+                step="0.01"
+                value="0"
+              />
+            </div>
+
+            <div class="ctrl-block">
+              <div class="ctrl-row">
+                <label for="ctrl-lineheight">Line height</label>
+                <span id="ctrl-lineheight-val" class="ctrl-val">1.00</span>
+              </div>
+              <input
+                id="ctrl-lineheight"
+                class="slider"
+                type="range"
+                min="0.85"
+                max="2"
+                step="0.01"
+                value="1"
+              />
+            </div>
           </div>
 
           <div class="ctrl-block">
@@ -101,38 +157,6 @@
               <button type="button" class="btn-toggle" data-toggle="day">Day</button>
               <button type="button" class="btn-toggle" data-toggle="kiln">Kiln</button>
             </div>
-          </div>
-
-          <div class="ctrl-block">
-            <div class="ctrl-row">
-              <label for="ctrl-glaze-coverage">Glaze coverage</label>
-              <span id="ctrl-glaze-coverage-val" class="ctrl-val">0%</span>
-            </div>
-            <input
-              id="ctrl-glaze-coverage"
-              class="slider"
-              type="range"
-              min="0"
-              max="100"
-              step="1"
-              value="0"
-            />
-          </div>
-
-          <div class="ctrl-block">
-            <div class="ctrl-row">
-              <label for="ctrl-spacing">Spacing</label>
-              <span id="ctrl-spacing-val" class="ctrl-val">0.00 EM</span>
-            </div>
-            <input
-              id="ctrl-spacing"
-              class="slider"
-              type="range"
-              min="-0.05"
-              max="0.4"
-              step="0.01"
-              value="0"
-            />
           </div>
 
           <div class="ctrl-block">

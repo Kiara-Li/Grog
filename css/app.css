@@ -122,8 +122,95 @@ body {
   gap: 2rem;
 }
 
+.spec-carousel {
+  width: 100%;
+  max-width: 36rem;
+  min-height: min(52vh, 28rem);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.spec-carousel-viewport {
+  width: 100%;
+  overflow: hidden;
+}
+
+.spec-carousel-track {
+  display: flex;
+  /* width set in JS: slideCount × parent width */
+  transition: transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.spec-carousel-slide {
+  flex-shrink: 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: clamp(0.75rem, 2vh, 1.5rem);
+  padding-right: 0.5rem;
+  box-sizing: border-box;
+}
+
+/* One unified size per slide (tier = shorter lines → larger type) */
+.spec-carousel-slide[data-tier="0"] .spec-line {
+  font-size: clamp(2.75rem, 9vw, 6.5rem);
+}
+.spec-carousel-slide[data-tier="1"] .spec-line {
+  font-size: clamp(2.35rem, 7.2vw, 5.25rem);
+}
+.spec-carousel-slide[data-tier="2"] .spec-line {
+  font-size: clamp(1.9rem, 5.4vw, 4rem);
+}
+.spec-carousel-slide[data-tier="3"] .spec-line {
+  font-size: clamp(1.5rem, 4vw, 3.1rem);
+}
+
+.spec-carousel-footer {
+  margin-top: 1.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.spec-carousel-dots {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.spec-carousel-dot {
+  width: 6px;
+  height: 6px;
+  padding: 0;
+  border: 1px solid #c4a882;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 0;
+  transition: background 0.2s, border-color 0.2s, transform 0.2s;
+}
+
+.spec-carousel-dot[aria-current="true"] {
+  background: #c4622d;
+  border-color: #c4622d;
+  transform: scale(1.15);
+}
+
+.spec-carousel-dot:focus-visible {
+  outline: 2px solid #c4622d;
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spec-carousel-track {
+    transition: none;
+  }
+}
+
 .spec-line {
-  line-height: 1;
+  line-height: 1.05;
+  margin: 0;
 }
 
 .spec-line.dark {
@@ -176,26 +263,6 @@ body {
   text-transform: uppercase;
   letter-spacing: 0.4em;
   color: #c4622d;
-}
-
-/* Type scale helpers (vw) */
-.fs-8 {
-  font-size: 8vw;
-}
-.fs-5 {
-  font-size: 5vw;
-}
-.fs-7 {
-  font-size: 7vw;
-}
-.fs-4 {
-  font-size: 4vw;
-}
-.fs-9 {
-  font-size: 9vw;
-}
-.fs-6 {
-  font-size: 6vw;
 }
 
 /* Type tester */
@@ -288,13 +355,15 @@ body {
   left: 0;
   width: 100%;
   height: 100%;
-  opacity: 0;
-  z-index: 3;
+  min-height: 100%;
+  z-index: 5;
   cursor: text;
   outline: 0;
   color: transparent;
   caret-color: #2a1a0a;
-  -webkit-text-fill-color: transparent;
+  pointer-events: auto;
+  user-select: text;
+  -webkit-user-select: text;
 }
 
 .type-controls {
@@ -304,6 +373,21 @@ body {
   display: flex;
   flex-direction: column;
   gap: 2.5rem;
+}
+
+.ctrl-sliders {
+  display: flex;
+  flex-direction: column;
+  gap: 1.35rem;
+}
+
+.ctrl-sliders .ctrl-block {
+  margin: 0;
+}
+
+.ctrl-sliders .slider {
+  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
 }
 
 .ctrl-block label,
@@ -355,20 +439,40 @@ body {
 .slider::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 16px;
-  height: 16px;
-  background: #e8dcc8;
+  width: 28px;
+  height: 28px;
+  margin-top: -12px;
+  box-sizing: border-box;
+  background: url("../img/Exclude.png") center center / contain no-repeat;
+  background-color: transparent;
   cursor: pointer;
-  border-radius: 50%;
+  border: none;
+  border-radius: 0;
+  filter: brightness(0) invert(1);
+}
+
+.slider::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 0.5rem;
+  background: #3d2b1a;
+}
+
+.slider::-moz-range-track {
+  height: 4px;
+  border-radius: 0.5rem;
+  background: #3d2b1a;
 }
 
 .slider::-moz-range-thumb {
-  width: 16px;
-  height: 16px;
-  background: #e8dcc8;
+  width: 28px;
+  height: 28px;
+  box-sizing: border-box;
+  background: url("../img/Exclude.png") center center / contain no-repeat;
+  background-color: transparent;
   cursor: pointer;
-  border-radius: 50%;
   border: none;
+  border-radius: 0;
+  filter: brightness(0) invert(1);
 }
 
 .color-section-label {
@@ -392,12 +496,13 @@ body {
 .swatch-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
+  gap: 1.1rem;
 }
 
-.swatch {
-  width: 2rem;
-  height: 2rem;
+/* Type tester color chips (~2.2× previous 2rem) */
+.type-controls .swatch {
+  width: 4.4rem;
+  height: 4.4rem;
   border: none;
   padding: 0;
   cursor: pointer;

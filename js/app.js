@@ -58,6 +58,7 @@
     fontSize: 128,
     isInverted: false,
     letterSpacing: 0,
+    lineHeight: 1,
     typeTesterText: "GROG",
     glazeCoveragePct: 0,
     glyphColor: "#2A1A0A",
@@ -78,6 +79,114 @@
   let lettersContainer = null;
   /** @type {HTMLSpanElement[]} */
   let letterEls = [];
+
+  /** Specimen column: phrase groups by length; one shared type size per slide (tier 0 = largest). */
+  const SPEC_CAROUSEL_SLIDES = [
+    {
+      tier: 0,
+      lines: [
+        { text: "ROUGH EDGES", tone: "dark" },
+        { text: "GLAZE & FORM", tone: "accent" },
+      ],
+    },
+    {
+      tier: 1,
+      lines: [
+        { text: "KILN GEOMETRY", tone: "dark" },
+        { text: "FIRED AT 1280°C", tone: "accent" },
+      ],
+    },
+    {
+      tier: 2,
+      lines: [
+        { text: "BORN FROM CLAY", tone: "dark" },
+        { text: "EVERY LETTER FIRED", tone: "accent" },
+      ],
+    },
+    {
+      tier: 3,
+      lines: [
+        { text: "SILENCE IN THE KILN", tone: "dark" },
+        { text: "CLAY REMEMBERS", tone: "accent" },
+      ],
+    },
+  ];
+
+  let specCarouselIndex = 0;
+  let specCarouselTimer = null;
+
+  function buildSpecCarousel() {
+    const track = document.getElementById("spec-carousel-track");
+    const dotsRoot = document.getElementById("spec-carousel-dots");
+    const root = document.getElementById("spec-carousel");
+    if (!track || !dotsRoot || !root) return;
+
+    const n = SPEC_CAROUSEL_SLIDES.length;
+    const reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const stepPct = 100 / n;
+
+    function goToSlide(idx) {
+      specCarouselIndex = ((idx % n) + n) % n;
+      track.style.transform = "translateX(-" + specCarouselIndex * stepPct + "%)";
+      dotsRoot.querySelectorAll(".spec-carousel-dot").forEach(function (d, i) {
+        d.setAttribute("aria-current", i === specCarouselIndex ? "true" : "false");
+      });
+    }
+
+    function stopAutoplay() {
+      if (specCarouselTimer) {
+        window.clearInterval(specCarouselTimer);
+        specCarouselTimer = null;
+      }
+    }
+
+    function startAutoplay() {
+      if (reduceMotion || n < 2) return;
+      stopAutoplay();
+      specCarouselTimer = window.setInterval(function () {
+        goToSlide(specCarouselIndex + 1);
+      }, 5200);
+    }
+
+    track.innerHTML = "";
+    dotsRoot.innerHTML = "";
+    track.style.width = n * 100 + "%";
+
+    SPEC_CAROUSEL_SLIDES.forEach(function (slide, slideIdx) {
+      const slideEl = document.createElement("div");
+      slideEl.className = "spec-carousel-slide";
+      slideEl.setAttribute("data-tier", String(slide.tier));
+      slideEl.setAttribute("role", "group");
+      slideEl.setAttribute("aria-roledescription", "slide");
+      slideEl.setAttribute("aria-label", "Slide " + (slideIdx + 1) + " of " + n);
+      slideEl.style.flex = "0 0 " + stepPct + "%";
+
+      slide.lines.forEach(function (line) {
+        const div = document.createElement("div");
+        div.className = "spec-line " + (line.tone === "accent" ? "accent" : "dark");
+        div.textContent = line.text;
+        slideEl.appendChild(div);
+      });
+      track.appendChild(slideEl);
+
+      const dot = document.createElement("button");
+      dot.type = "button";
+      dot.className = "spec-carousel-dot";
+      dot.setAttribute("aria-label", "Show specimen slide " + (slideIdx + 1));
+      dot.addEventListener("click", function () {
+        stopAutoplay();
+        goToSlide(slideIdx);
+        startAutoplay();
+      });
+      dotsRoot.appendChild(dot);
+    });
+
+    goToSlide(0);
+    startAutoplay();
+
+    root.addEventListener("mouseenter", stopAutoplay);
+    root.addEventListener("mouseleave", startAutoplay);
+  }
 
   function interpolateColor(color1, color2, factor) {
     const hex1 = color1.replace("#", "");
@@ -257,12 +366,13 @@
     return `U+${code}`;
   }
 
-  function applyTesterFont(fontSize, letterSpacing) {
+  function applyTesterTypography(fontSize, letterSpacing, lineHeight) {
     ["tester-input", "tester-fit", "tester-base", "tester-glaze"].forEach(function (id) {
       const el = document.getElementById(id);
       if (!el) return;
       el.style.fontSize = fontSize + "px";
       el.style.letterSpacing = letterSpacing + "em";
+      el.style.lineHeight = String(lineHeight);
     });
   }
 
@@ -272,15 +382,25 @@
     const base = document.getElementById("tester-base");
     const glaze = document.getElementById("tester-glaze");
     if (!input || !fit || !base || !glaze) return;
-    let t = input.textContent || "";
-    if (!t.trim()) {
-      t = "GROG";
-      input.textContent = t;
+
+    const applyMirrors = function () {
+      let text = input.textContent || "";
+      if (!text.trim()) {
+        text = "GROG";
+        input.textContent = text;
+      }
+      fit.textContent = text;
+      base.textContent = text;
+      glaze.textContent = text;
+      state.typeTesterText = text;
+    };
+
+    const typing = document.activeElement === input && (input.textContent || "").trim().length > 0;
+    if (typing && typeof queueMicrotask === "function") {
+      queueMicrotask(applyMirrors);
+    } else {
+      applyMirrors();
     }
-    fit.textContent = t;
-    base.textContent = t;
-    glaze.textContent = t;
-    state.typeTesterText = t;
   }
 
   /** Glaze = second layer clipped with overflow + px height from Range (no gradient / no background-clip). */
@@ -370,7 +490,7 @@
     if (preview) preview.style.backgroundColor = state.isInverted ? "#0F0804" : "#F5F0E8";
 
     syncTypeTesterText();
-    applyTesterFont(state.fontSize, state.letterSpacing);
+    applyTesterTypography(state.fontSize, state.letterSpacing, state.lineHeight);
 
     const baseFill = state.isInverted ? "#E8DCC8" : state.glyphColor;
     layoutTesterGlazeClip();
@@ -387,6 +507,10 @@
     if (fsVal) fsVal.textContent = state.fontSize + " PT";
     const spVal = document.getElementById("ctrl-spacing-val");
     if (spVal) spVal.textContent = state.letterSpacing.toFixed(2) + " EM";
+    const lhVal = document.getElementById("ctrl-lineheight-val");
+    if (lhVal) lhVal.textContent = state.lineHeight.toFixed(2);
+    const lhCtrl = document.getElementById("ctrl-lineheight");
+    if (lhCtrl && document.activeElement !== lhCtrl) lhCtrl.value = String(state.lineHeight);
     const gc = document.getElementById("ctrl-glaze-coverage");
     if (gc && document.activeElement !== gc) gc.value = String(pct);
     const gcVal = document.getElementById("ctrl-glaze-coverage-val");
@@ -598,6 +722,13 @@
       updateTypeTester();
     });
 
+    document.getElementById("ctrl-lineheight")?.addEventListener("input", function (e) {
+      state.lineHeight = Number(e.target.value);
+      if (!Number.isFinite(state.lineHeight)) state.lineHeight = 1;
+      state.lineHeight = Math.max(0.85, Math.min(2, state.lineHeight));
+      updateTypeTester();
+    });
+
     document.querySelector("[data-toggle=day]")?.addEventListener("click", function () {
       state.isInverted = false;
       updateTypeTester();
@@ -709,6 +840,7 @@
   function init() {
     buildHeroLetters();
     buildCharacterMap();
+    buildSpecCarousel();
     buildSwatches();
     wireControls();
 
