@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Single-page Typeface Showcase</title>
+    <link rel="stylesheet" href="css/app.css" />
+  </head>
+  <body>
+    <div class="app">
+      <nav class="nav">
+        <div id="nav-brand" class="nav-brand">Grog</div>
+      </nav>
+
+      <div class="kiln-readout">
+        <div id="kiln-temp" class="kiln-readout-temp">20°C</div>
+        <div id="kiln-readout-label" class="kiln-readout-label">Kiln Temperature</div>
+      </div>
+
+      <!-- Hero -->
+      <section id="hero" class="hero">
+        <div id="hero-word" class="hero-word"></div>
+        <div id="hero-stage" class="hero-stage">UNFIRED CLAY</div>
+      </section>
+
+      <!-- Specimen -->
+      <section class="spec">
+        <div class="spec-left">
+          <div class="spec-line dark fs-8">BORN FROM CLAY</div>
+          <div class="spec-line accent fs-5">EVERY LETTER FIRED</div>
+          <div class="spec-line dark fs-7">ROUGH EDGES</div>
+          <div class="spec-line accent fs-4">FIRED AT 1280°C</div>
+          <div class="spec-line dark fs-9">GLAZE & FORM</div>
+          <div class="spec-line accent fs-5">KILN GEOMETRY</div>
+          <div class="spec-line dark fs-6">SILENCE IN THE KILN</div>
+          <div class="spec-line accent fs-4">CLAY REMEMBERS</div>
+        </div>
+        <div class="spec-right">
+          <h2>GROG</h2>
+          <div class="spec-rule"></div>
+          <div class="spec-copy">
+            <p>
+              Grog is a ceramic display typeface whose letterforms are shaped by the kiln. Each character
+              carries the weight of unfired clay — rough at the edges, geometric at the core, structured
+              like a cross-section of stacked kiln shelves. The forms are drawn from the physical logic of
+              ceramics: thick walls, compressed joints, material memory. Grog does not perform elegance. It
+              performs permanence.
+            </p>
+            <p>
+              Two versions exist. Regular renders the typeface in its raw state — clay-toned, heavy,
+              unglazed. Color applies post-firing glaze across the letterforms, a warm spectrum running from
+              iron red through ash to celadon. The same letter, two temperatures, two results. Neither is
+              more correct than the other.
+            </p>
+            <p>
+              Grog is designed in the spirit of quiet studio craft. No ornament. No flourish. Only the mark
+              left by material and heat. The typeface is best used large, unhurried, and with space to
+              breathe — the way a finished piece sits on a shelf before anyone decides what it means.
+            </p>
+          </div>
+          <div class="spec-meta">2024 — Display Typeface — Ceramic Series</div>
+        </div>
+      </section>
+
+      <!-- Type tester -->
+      <section class="type-section">
+        <div id="type-preview-wrap" class="type-preview-wrap">
+          <div class="type-tester-wrap">
+            <div id="tester-stack" class="tester-stack">
+              <div id="tester-line" class="tester-line">
+                <div id="tester-fit" class="tester-fit" aria-hidden="true"></div>
+                <div id="tester-base" class="tester-base"></div>
+                <div id="tester-glaze-clip" class="tester-glaze-clip">
+                  <div id="tester-glaze" class="tester-glaze"></div>
+                </div>
+                <div
+                  id="tester-input"
+                  class="tester-input"
+                  contenteditable="true"
+                  spellcheck="false"
+                  autocomplete="off"
+                >
+                  GROG
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="type-controls">
+          <div class="ctrl-block">
+            <div class="ctrl-row">
+              <label for="ctrl-fontsize">Size</label>
+              <span id="ctrl-fontsize-val" class="ctrl-val">128 PT</span>
+            </div>
+            <input id="ctrl-fontsize" class="slider" type="range" min="24" max="220" value="128" />
+          </div>
+
+          <div class="ctrl-block">
+            <label class="ctrl-head">Invert</label>
+            <div class="toggle-row">
+              <button type="button" class="btn-toggle" data-toggle="day">Day</button>
+              <button type="button" class="btn-toggle" data-toggle="kiln">Kiln</button>
+            </div>
+          </div>
+
+          <div class="ctrl-block">
+            <div class="ctrl-row">
+              <label for="ctrl-glaze-coverage">Glaze coverage</label>
+              <span id="ctrl-glaze-coverage-val" class="ctrl-val">0%</span>
+            </div>
+            <input
+              id="ctrl-glaze-coverage"
+              class="slider"
+              type="range"
+              min="0"
+              max="100"
+              step="1"
+              value="0"
+            />
+          </div>
+
+          <div class="ctrl-block">
+            <div class="ctrl-row">
+              <label for="ctrl-spacing">Spacing</label>
+              <span id="ctrl-spacing-val" class="ctrl-val">0.00 EM</span>
+            </div>
+            <input
+              id="ctrl-spacing"
+              class="slider"
+              type="range"
+              min="-0.05"
+              max="0.4"
+              step="0.01"
+              value="0"
+            />
+          </div>
+
+          <div class="ctrl-block">
+            <span class="color-section-label">Color</span>
+            <div class="mb-4">
+              <div class="swatch-label">Glyph</div>
+              <div id="swatch-row-glyph" class="swatch-row"></div>
+            </div>
+            <div>
+              <div class="swatch-label">Glaze</div>
+              <div id="swatch-row-glaze" class="swatch-row"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Character map -->
+      <section class="char-section">
+        <div class="char-left">
+          <div class="char-section-title">Grog — Full Character Set</div>
+          <div id="char-rows" class="char-rows"></div>
+        </div>
+        <div class="char-right">
+          <div class="char-right-label">Character</div>
+          <div class="char-preview-wrap">
+            <div id="char-preview-glyph" class="char-preview-glyph">A</div>
+            <div id="char-preview-code" class="char-preview-code">U+0041</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Glaze lab -->
+      <section class="glaze-section">
+        <div class="glaze-left">
+          <h2>GLAZE TEST</h2>
+          <p class="glaze-sub">Interactive Kiln Simulation</p>
+
+          <div class="mb-8">
+            <span class="field-label">Cone Temperature</span>
+            <div class="cone-row">
+              <button type="button" class="cone-btn" data-cone-idx="0">
+                <div class="cone-name">Cone 04</div>
+                <div class="cone-temp">1060°C</div>
+              </button>
+              <button type="button" class="cone-btn" data-cone-idx="1">
+                <div class="cone-name">Cone 6</div>
+                <div class="cone-temp">1222°C</div>
+              </button>
+              <button type="button" class="cone-btn" data-cone-idx="2">
+                <div class="cone-name">Cone 10</div>
+                <div class="cone-temp">1305°C</div>
+              </button>
+            </div>
+          </div>
+
+          <div class="mb-8">
+            <span class="field-label">Raw Glaze</span>
+            <div class="glaze-grid">
+              <button type="button" class="glaze-card" data-raw-idx="0">
+                <div class="glaze-card-swatch" style="background-color: #b8c4b8"></div>
+                <div class="glaze-card-label"><span>Celadon</span></div>
+              </button>
+              <button type="button" class="glaze-card" data-raw-idx="1">
+                <div class="glaze-card-swatch" style="background-color: #9a8070"></div>
+                <div class="glaze-card-label"><span>Iron Red</span></div>
+              </button>
+              <button type="button" class="glaze-card" data-raw-idx="2">
+                <div class="glaze-card-swatch" style="background-color: #8090a8"></div>
+                <div class="glaze-card-label"><span>Cobalt</span></div>
+              </button>
+              <button type="button" class="glaze-card" data-raw-idx="3">
+                <div class="glaze-card-swatch" style="background-color: #c0b8a0"></div>
+                <div class="glaze-card-label"><span>Wood Ash</span></div>
+              </button>
+              <button type="button" class="glaze-card" data-raw-idx="4">
+                <div class="glaze-card-swatch" style="background-color: #6b5040"></div>
+                <div class="glaze-card-label"><span>Tenmoku</span></div>
+              </button>
+              <button type="button" class="glaze-card glaze-card-custom" data-raw-custom>
+                <div id="custom-color-swatch" class="glaze-card-swatch" style="background-color: #c4622d">
+                  <input id="custom-color-input" type="color" value="#c4622d" />
+                  <span id="custom-plus" class="custom-plus">+</span>
+                </div>
+                <div class="glaze-card-label"><span>Custom</span></div>
+              </button>
+            </div>
+          </div>
+
+          <button type="button" id="btn-fire" class="btn-fire" disabled>Fire Tile</button>
+        </div>
+
+        <div class="glaze-right">
+          <div class="tile-wrap">
+            <div id="tile-card" class="tile-card">
+              <div id="tile-card-main" class="tile-card-main">
+                <span id="tile-label-grog">GROG</span>
+              </div>
+              <div id="tile-card-footer" class="tile-card-footer">
+                <div id="tile-footer-line1" class="line1">Select Glaze + Cone</div>
+                <div id="tile-footer-line2" class="line2" style="display: none"></div>
+              </div>
+            </div>
+          </div>
+          <button type="button" id="btn-pdf" class="btn-pdf" hidden>Export Tile — PDF</button>
+        </div>
+      </section>
+    </div>
+
+    <script src="js/app.js"></script>
+  </body>
+</html>
