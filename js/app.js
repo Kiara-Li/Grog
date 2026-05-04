@@ -487,7 +487,10 @@
 
   function updateTypeTester() {
     const preview = document.getElementById("type-preview-wrap");
-    if (preview) preview.style.backgroundColor = state.isInverted ? "#0F0804" : "#F5F0E8";
+    if (preview) {
+      preview.style.backgroundColor = state.isInverted ? "#0F0804" : "#F5F0E8";
+      preview.classList.toggle("surface-dark-texture", state.isInverted);
+    }
 
     syncTypeTesterText();
     applyTesterTypography(state.fontSize, state.letterSpacing, state.lineHeight);

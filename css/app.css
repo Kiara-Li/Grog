@@ -25,6 +25,46 @@ body {
   color: #2a1a0a;
 }
 
+/* Dark-panel grain: grayscale + overlay (multiply was crushing contrast on #1c / #2a) */
+.surface-dark-texture {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.surface-dark-texture::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image: url("../img/texture-dark.jpg");
+  background-size: min(420px, 56vw);
+  background-repeat: repeat;
+  opacity: 0.78;
+  filter: grayscale(1) contrast(2.05) brightness(1.28);
+  mix-blend-mode: overlay;
+}
+
+.surface-dark-texture > * {
+  position: relative;
+  z-index: 1;
+}
+
+.tile-card.is-firing::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background-image: url("../img/texture-dark.jpg");
+  background-size: min(420px, 56vw);
+  background-repeat: repeat;
+  opacity: 0.82;
+  filter: grayscale(1) contrast(2.05) brightness(1.28);
+  mix-blend-mode: overlay;
+}
+
 .app {
   position: relative;
 }
@@ -279,6 +319,7 @@ body {
   justify-content: center;
   padding: 0 0 0 4rem;
   transition: background-color 0.5s ease;
+  overflow: hidden;
 }
 
 .type-tester-wrap {
@@ -765,7 +806,6 @@ body {
   max-width: 28rem;
   height: 44px;
   border: none;
-  background: #2a1a0a;
   color: #e8dcc8;
   cursor: pointer;
   font-family: inherit;
@@ -773,6 +813,12 @@ body {
   text-transform: uppercase;
   letter-spacing: 0.3em;
   transition: opacity 0.2s;
+  /* Texture: overlay reads much stronger than luminosity on this brown */
+  background-color: #2a1a0a;
+  background-image: url("../img/texture-dark.jpg"), linear-gradient(#2a1a0a, #2a1a0a);
+  background-size: min(300px, 92vw) auto, cover;
+  background-repeat: repeat, no-repeat;
+  background-blend-mode: overlay, normal;
 }
 
 .btn-pdf:hover {
