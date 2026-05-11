@@ -1,0 +1,19 @@
+<svg width="1140" height="1220" viewBox="0 0 1140 1220" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g filter="url(#filter0_g_151_4843)">
+<path d="M210 1210H10V210H210V1210ZM350 10L670 330V610H470V410L270 210H210V10H350Z" fill="black"/>
+<path d="M210 10V210H10V10H210Z" fill="black"/>
+<path d="M930 1210H1130V210H930V1210ZM790 10L470 330V810H670V410L870 210H930V10H790Z" fill="black"/>
+<path d="M930 10V210H1130V10H930Z" fill="black"/>
+</g>
+<defs>
+<filter id="filter0_g_151_4843" x="0" y="0" width="1140" height="1220" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+<feTurbulence type="fractalNoise" baseFrequency="0.0099999997764825821 0.0099999997764825821" numOctaves="3" seed="4939" />
+<feDisplacementMap in="shape" scale="20" xChannelSelector="R" yChannelSelector="G" result="displacedImage" width="100%" height="100%" />
+<feMerge result="effect1_texture_151_4843">
+<feMergeNode in="displacedImage"/>
+</feMerge>
+</filter>
+</defs>
+</svg>

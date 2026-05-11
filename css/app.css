@@ -7,6 +7,37 @@
   font-display: swap;
 }
 
+:root {
+  --font-body: "Grog", ui-monospace, monospace;
+  --font-display: "Grog", ui-monospace, monospace;
+  --font-size-nav-brand: 0.75rem;
+  --letter-spacing-nav-brand: 0.3em;
+  --color-bg-page: #f5f0e8;
+  --color-ink: #2a1a0a;
+  --color-ink-brown: #3d2b1a;
+  --color-panel-dark: #1c1408;
+  --color-panel-charcoal: #2a1a0a;
+  --color-accent: #c4622d;
+  --color-cream: #e8dcc8;
+  --color-cream-muted: #b8afa0;
+  --color-border-warm: #c4a882;
+  --color-border-soft: #b8afa0;
+  --color-tile-footer: #ede4d3;
+  /* Process page: alternating section washes (same family as page, no new hues) */
+  --color-process-section-a: var(--color-bg-page);
+  --color-process-section-b: var(--color-tile-footer);
+  --color-muted-text: #8a7060;
+  --color-preview-invert: #0f0804;
+  --color-slide-track: #3d2b1a;
+  --color-btn-pdf-bg: #2a1a0a;
+  --padding-nav: 1.5rem 2rem;
+  --font-size-process-h2: clamp(1.5rem, 3.2vw, 2.25rem);
+  --font-size-process-body: 1rem;
+  --font-size-process-back-link: 0.8rem;
+  --line-height-prose: 1.65;
+  --process-section-gap: clamp(2rem, 5vw, 4rem);
+}
+
 *,
 *::before,
 *::after {
@@ -20,9 +51,9 @@ body {
 }
 
 body {
-  font-family: "Grog", ui-monospace, monospace;
-  background: #f5f0e8;
-  color: #2a1a0a;
+  font-family: var(--font-body);
+  background: var(--color-bg-page);
+  color: var(--color-ink);
 }
 
 /* Dark-panel grain: grayscale + overlay (multiply was crushing contrast on #1c / #2a) */
@@ -79,14 +110,19 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1.5rem 2rem;
+  padding: var(--padding-nav);
 }
 
 .nav-brand {
-  font-size: 0.75rem;
+  font-size: var(--font-size-nav-brand);
   text-transform: uppercase;
-  letter-spacing: 0.3em;
-  color: #2a1a0a;
+  letter-spacing: var(--letter-spacing-nav-brand);
+  color: var(--color-ink);
+  text-decoration: none;
+}
+
+a.nav-brand:hover {
+  opacity: 0.75;
 }
 
 /* Kiln readout */
