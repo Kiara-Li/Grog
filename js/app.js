@@ -1,6 +1,9 @@
 (function () {
   "use strict";
 
+  /** En dash (U+2013); Grog maps this slot for punctuation. */
+  const ND = "\u2013";
+
   const coneTemps = [
     { name: "Cone 04", temp: 1060 },
     { name: "Cone 6", temp: 1222 },
@@ -41,12 +44,12 @@
     "abcdefghijklm",
     "nopqrstuvwxyz",
     "0123456789",
-    '$.,!?&""\'\'#*:;',
-    "@%(){}+–_=/\\<>",
+    "$.,!?&\u201C\u201D\u2018\u2019#*:;",
+    "@%(){}+\u2013_=/\\<>",
   ];
 
-  const GLYPH_SWATCHES = ["#2A1A0A", "#E8DCC8", "#C4622D", "#8B5A3A", "#D4956A", "#6B4428", "#E8C49A", "#3D2B1A"];
-  const GLAZE_SWATCHES = ["#6B9E8F", "#3D7060", "#3A2010", "#7A2010", "#C09080", "#9BAA8A", "#1A3550", "#7090C0"];
+  const GLYPH_SWATCHES = ["#2A1A0A", "#E8DCC8", "#C4622D", "#8B5A3A", "#D4956A", "#6B4428", "#E8C49A"];
+  const GLAZE_SWATCHES = ["#6B9E8F", "#3D7060", "#3A2010", "#7A2010", "#C09080", "#9BAA8A", "#7090C0"];
 
   const CUSTOM_GLAZE_INDEX = 5;
 
@@ -80,36 +83,13 @@
   /** @type {HTMLSpanElement[]} */
   let letterEls = [];
 
-  /** Specimen column: phrase groups by length; one shared type size per slide (tier 0 = largest). */
+  /** Specimen column: one PNG per slide (color/ folder). Filenames keep their original spaces. */
   const SPEC_CAROUSEL_SLIDES = [
-    {
-      tier: 0,
-      lines: [
-        { text: "ROUGH EDGES", tone: "dark" },
-        { text: "GLAZE & FORM", tone: "accent" },
-      ],
-    },
-    {
-      tier: 1,
-      lines: [
-        { text: "KILN GEOMETRY", tone: "dark" },
-        { text: "FIRED AT 1280°C", tone: "accent" },
-      ],
-    },
-    {
-      tier: 2,
-      lines: [
-        { text: "BORN FROM CLAY", tone: "dark" },
-        { text: "EVERY LETTER FIRED", tone: "accent" },
-      ],
-    },
-    {
-      tier: 3,
-      lines: [
-        { text: "SILENCE IN THE KILN", tone: "dark" },
-        { text: "CLAY REMEMBERS", tone: "accent" },
-      ],
-    },
+    { image: "color/GLAZE 01.png", alt: "Glaze 01 specimen" },
+    { image: "color/CELADON.png", alt: "Celadon specimen" },
+    { image: "color/IRON RED.png", alt: "Iron Red specimen" },
+    { image: "color/WOOD ASH.png", alt: "Wood Ash specimen" },
+    { image: "color/TENMOKU.png", alt: "Tenmoku specimen" },
   ];
 
   let specCarouselIndex = 0;
@@ -155,18 +135,18 @@
     SPEC_CAROUSEL_SLIDES.forEach(function (slide, slideIdx) {
       const slideEl = document.createElement("div");
       slideEl.className = "spec-carousel-slide";
-      slideEl.setAttribute("data-tier", String(slide.tier));
       slideEl.setAttribute("role", "group");
       slideEl.setAttribute("aria-roledescription", "slide");
       slideEl.setAttribute("aria-label", "Slide " + (slideIdx + 1) + " of " + n);
       slideEl.style.flex = "0 0 " + stepPct + "%";
 
-      slide.lines.forEach(function (line) {
-        const div = document.createElement("div");
-        div.className = "spec-line " + (line.tone === "accent" ? "accent" : "dark");
-        div.textContent = line.text;
-        slideEl.appendChild(div);
-      });
+      const img = document.createElement("img");
+      img.className = "spec-image";
+      img.src = encodeURI(slide.image);
+      img.alt = slide.alt || "";
+      img.loading = "lazy";
+      img.decoding = "async";
+      slideEl.appendChild(img);
       track.appendChild(slideEl);
 
       const dot = document.createElement("button");
@@ -187,6 +167,7 @@
     root.addEventListener("mouseenter", stopAutoplay);
     root.addEventListener("mouseleave", startAutoplay);
   }
+
 
   function interpolateColor(color1, color2, factor) {
     const hex1 = color1.replace("#", "");
@@ -326,7 +307,7 @@
     let currentStep = 0;
     const tempInterval = setInterval(function () {
       currentStep += 1;
-      state.firingTemp = Math.round(20 + increment * currentStep);
+      state.firingTemp = Math.round((20 + increment * currentStep) / 10) * 10;
       updateFireButton();
       if (currentStep >= steps) clearInterval(tempInterval);
     }, stepDuration);
@@ -350,15 +331,121 @@
     }, 3000);
   }
 
-  function exportPDF() {
-    if (state.selectedCone === null || state.selectedRawGlaze === null) return;
-    const glazeName = state.selectedRawGlaze === CUSTOM_GLAZE_INDEX ? "Custom" : rawGlazes[state.selectedRawGlaze].name;
-    const rawColor =
-      state.selectedRawGlaze === CUSTOM_GLAZE_INDEX ? state.customColor : rawGlazes[state.selectedRawGlaze].rawColor;
-    const cone = coneTemps[state.selectedCone];
-    window.alert(
-      `PDF Export for ${glazeName} glaze at ${cone.name} (${cone.temp}°C)\n\nBefore: ${rawColor}\nAfter: ${state.firedColor}\n\nNote: Full PDF export with jsPDF will be implemented.`
+  function normalizeHexColor(hex) {
+    let h = String(hex || "#000000")
+      .trim()
+      .replace(/^#/, "");
+    if (h.length === 3) {
+      h = h[0] + h[0] + h[1] + h[1] + h[2] + h[2];
+    }
+    if (h.length !== 6 || /[^0-9a-f]/i.test(h)) return "#000000";
+    return "#" + h.toUpperCase();
+  }
+
+  function hexToPdfRgb(hex) {
+    const h = normalizeHexColor(hex).replace("#", "");
+    return {
+      r: parseInt(h.slice(0, 2), 16) / 255,
+      g: parseInt(h.slice(2, 4), 16) / 255,
+      b: parseInt(h.slice(4, 6), 16) / 255,
+    };
+  }
+
+  function slugForFilename(name) {
+    return (
+      String(name)
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "") || "tile"
     );
+  }
+
+  async function exportPDF() {
+    if (state.selectedCone === null || state.selectedRawGlaze === null || !state.hasFired) return;
+    if (typeof PDFLib === "undefined" || !PDFLib.PDFDocument) {
+      window.alert("PDF library is missing. Check that js/vendor/pdf-lib.min.js is loaded.");
+      return;
+    }
+    const glazeName =
+      state.selectedRawGlaze === CUSTOM_GLAZE_INDEX ? "Custom" : rawGlazes[state.selectedRawGlaze].name;
+    const rawHex = normalizeHexColor(
+      state.selectedRawGlaze === CUSTOM_GLAZE_INDEX ? state.customColor : rawGlazes[state.selectedRawGlaze].rawColor
+    );
+    const firedHex = normalizeHexColor(state.firedColor || rawHex);
+    const cone = coneTemps[state.selectedCone];
+    const { PDFDocument, rgb } = PDFLib;
+
+    let fontBytes;
+    try {
+      const fontUrl = new URL("fonts/Grog-Regular_3.otf", window.location.href).href;
+      const res = await fetch(fontUrl);
+      if (!res.ok) throw new Error("font " + res.status);
+      fontBytes = await res.arrayBuffer();
+    } catch (err) {
+      window.alert("Could not load the Grog font file for PDF export.");
+      return;
+    }
+
+    let pdfDoc;
+    let grogFont;
+    try {
+      pdfDoc = await PDFDocument.create();
+      grogFont = await pdfDoc.embedFont(fontBytes);
+    } catch (err) {
+      window.alert("Could not embed the font in the PDF.");
+      return;
+    }
+
+    const page = pdfDoc.addPage([595, 842]);
+    const H = page.getHeight();
+    const margin = 56;
+    const ink = rgb(0.16, 0.09, 0.04);
+    const rawC = hexToPdfRgb(rawHex);
+    const firedC = hexToPdfRgb(firedHex);
+    const sw = 76;
+    const gap = 22;
+    const hexSize = 22;
+
+    let t = H - margin;
+    page.drawText("GROG", { x: margin, y: t, size: 44, font: grogFont, color: ink });
+    t -= 50;
+    const subtitle = glazeName + " " + ND + " " + cone.name;
+    page.drawText(subtitle, { x: margin, y: t, size: 13, font: grogFont, color: ink });
+
+    function drawSwatchRow(label, fillRgb, hexDisp, boxBottom) {
+      page.drawText(label, { x: margin, y: boxBottom + sw + 14, size: 10, font: grogFont, color: ink });
+      page.drawRectangle({
+        x: margin,
+        y: boxBottom,
+        width: sw,
+        height: sw,
+        color: rgb(fillRgb.r, fillRgb.g, fillRgb.b),
+        borderColor: rgb(0.32, 0.26, 0.18),
+        borderWidth: 0.75,
+      });
+      page.drawText(hexDisp, {
+        x: margin + sw + gap,
+        y: boxBottom + 24,
+        size: hexSize,
+        font: grogFont,
+        color: ink,
+      });
+    }
+
+    const firstBoxBottom = t - 96;
+    drawSwatchRow("RAW", rawC, rawHex, firstBoxBottom);
+    drawSwatchRow("FIRED", firedC, firedHex, firstBoxBottom - sw - 58);
+
+    const bytes = await pdfDoc.save();
+    const blob = new Blob([bytes], { type: "application/pdf" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "grog-tile-" + slugForFilename(glazeName) + "-" + slugForFilename(cone.name) + ".pdf";
+    a.rel = "noopener";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(a.href);
   }
 
   function getCharUnicode(char) {
@@ -596,7 +683,7 @@
           const gname = state.selectedRawGlaze === CUSTOM_GLAZE_INDEX ? "Custom" : rawGlazes[state.selectedRawGlaze].name;
           const cn = coneTemps[state.selectedCone];
           line1.textContent = gname;
-          line2.textContent = cn.name + " / " + cn.temp + "°C";
+          line2.textContent = cn.name + " " + ND + " " + cn.temp + "\u00B0C";
           line2.style.display = "block";
         }
       }
@@ -694,7 +781,7 @@
 
     setInterval(function () {
       if (!state.heroSectionInView) return;
-      state.temperature = state.temperature >= 1280 ? 20 : Math.min(1280, state.temperature + 5);
+      state.temperature = state.temperature >= 1280 ? 20 : Math.min(1280, state.temperature + 10);
       updateKilnReadout();
       updateHero();
     }, 56);
@@ -801,7 +888,12 @@
     });
 
     document.getElementById("btn-fire")?.addEventListener("click", fireTile);
-    document.getElementById("btn-pdf")?.addEventListener("click", exportPDF);
+    document.getElementById("btn-pdf")?.addEventListener("click", function () {
+      exportPDF().catch(function (err) {
+        console.error(err);
+        window.alert("Could not create PDF.");
+      });
+    });
 
     window.addEventListener("resize", function () {
       updateTypeTester();
