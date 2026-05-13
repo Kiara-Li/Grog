@@ -35,6 +35,41 @@
   margin: 0;
 }
 
+.process-section.process-section--wash {
+  position: relative;
+  overflow: hidden;
+}
+
+.process-section.process-section--wash .process-section__inner {
+  position: relative;
+  z-index: 1;
+}
+
+/* Puzz silhouettes: background only (no layout space); not used on .process-closing */
+.process-puzz-strip {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: clamp(12rem, 44vh, 28rem);
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.process-puzz-fig {
+  position: absolute;
+  bottom: 0;
+  width: auto;
+  max-height: 100%;
+  height: 1em;
+  font-size: clamp(5.5rem, 32vh, 18rem);
+  object-fit: contain;
+  object-position: center bottom;
+  opacity: 0.82;
+  user-select: none;
+}
+
 .process-section-grid {
   display: flex;
   flex-direction: row;
@@ -59,7 +94,7 @@
   font-family: var(--font-display);
   font-weight: 400;
   font-size: var(--font-size-process-h2);
-  letter-spacing: 0.04em;
+  letter-spacing: 0;
   text-transform: none;
   margin: 0 0 1rem;
   color: var(--color-ink);
@@ -160,11 +195,12 @@
   transform-origin: center center;
 }
 
-/* Closing */
+/* Closing — full-bleed dark panel (grain + brown wash from app + ::after here) */
 .process-closing {
   margin-top: 0;
   padding: var(--process-section-gap) 0;
   text-align: center;
+  min-height: clamp(14rem, 36vh, 24rem);
 }
 
 .process-closing.surface-dark-texture {
@@ -175,12 +211,40 @@
   margin-left: -50vw;
   margin-right: -50vw;
   border: none;
+  /* Slightly lifted from pure black-brown so grain + wash read more clearly */
+  background-color: #2f1c12;
 }
 
-.process-closing-inner {
+/* Stronger grain than default .surface-dark-texture::before (process closing only) */
+.process-closing.surface-dark-texture::before {
+  opacity: 0.92;
+  filter: grayscale(1) contrast(2.35) brightness(1.42);
+  mix-blend-mode: overlay;
+  background-size: min(340px, 50vw);
+}
+
+/* Warmer wash, readable on grain — normal blend so multiply doesn’t crush both layers */
+.process-closing.surface-dark-texture::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(
+    165deg,
+    rgba(130, 78, 52, 0.42) 0%,
+    rgba(72, 42, 28, 0.52) 42%,
+    rgba(38, 20, 12, 0.58) 100%
+  );
+  mix-blend-mode: normal;
+}
+
+.process-closing.surface-dark-texture > .process-closing-inner {
   max-width: 40rem;
   margin: 0 auto;
-  padding: 0 var(--process-section-gap);
+  padding: clamp(2.5rem, 8vh, 5rem) var(--process-section-gap);
+  position: relative;
+  z-index: 2;
 }
 
 .process-closing .process-head,
@@ -188,17 +252,12 @@
   color: var(--color-cream);
 }
 
-.process-closing .process-body {
-  color: var(--color-cream);
-  opacity: 0.88;
-}
-
 .process-back-link {
   display: inline-block;
   margin-top: 1.75rem;
   font-family: var(--font-body);
   font-size: var(--font-size-process-back-link);
-  letter-spacing: 0.18em;
+  letter-spacing: 0;
   text-transform: uppercase;
   color: var(--color-accent);
   text-decoration: none;
@@ -211,6 +270,27 @@
 .process-back-link:hover {
   color: var(--color-cream);
   border-bottom-color: var(--color-accent);
+}
+
+.process-closing .process-back-link {
+  display: block;
+  text-align: center;
+  margin-top: 0;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: var(--font-size-process-h2);
+  line-height: 1.45;
+  letter-spacing: 0;
+  color: var(--color-cream);
+  text-decoration: none;
+  border-bottom: none;
+  position: relative;
+}
+
+.process-closing .process-back-link:hover {
+  border-bottom: none;
+  color: var(--color-accent);
+  opacity: 1;
 }
 
 @media (prefers-reduced-motion: reduce) {

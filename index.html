@@ -20,7 +20,31 @@
       <!-- Hero -->
       <section id="hero" class="hero">
         <div id="hero-word" class="hero-word"></div>
-        <div id="hero-stage" class="hero-stage">UNFIRED CLAY</div>
+        <!-- Pottery silhouettes: PNGs are pre-colored; grid matches design widths 288 : 449 : 368 : 462 -->
+        <div class="hero-puzz" aria-hidden="true">
+          <div class="hero-puzz-row">
+            <div class="hero-puzz-slot">
+              <div class="hero-puzz-frame" style="--puzz-ar: 288 / 570">
+                <img class="hero-puzz-img" src="puzz/Group 196.png" alt="" width="288" height="570" />
+              </div>
+            </div>
+            <div class="hero-puzz-slot">
+              <div class="hero-puzz-frame" style="--puzz-ar: 449 / 262">
+                <img class="hero-puzz-img" src="puzz/Group 198.png" alt="" width="449" height="262" />
+              </div>
+            </div>
+            <div class="hero-puzz-slot">
+              <div class="hero-puzz-frame" style="--puzz-ar: 368 / 308">
+                <img class="hero-puzz-img" src="puzz/Group 197.png" alt="" width="368" height="308" />
+              </div>
+            </div>
+            <div class="hero-puzz-slot">
+              <div class="hero-puzz-frame" style="--puzz-ar: 462 / 508">
+                <img class="hero-puzz-img" src="puzz/Group 201.png" alt="" width="462" height="508" />
+              </div>
+            </div>
+          </div>
+        </div>
       </section>
 
       <!-- Specimen -->
@@ -43,7 +67,6 @@
         </div>
         <div class="spec-right surface-dark-texture">
           <h2>GROG</h2>
-          <div class="spec-rule"></div>
           <div class="spec-copy">
             <p>
               Grog is a ceramic display typeface whose letterforms are shaped by the kiln. Each character
@@ -64,7 +87,6 @@
               breathe – the way a finished piece sits on a shelf before anyone decides what it means.
             </p>
           </div>
-          <div class="spec-meta">2024 – Display Typeface – Ceramic Series</div>
         </div>
       </section>
 
@@ -266,6 +288,7 @@
     </div>
 
     <script src="js/vendor/pdf-lib.min.js"></script>
+    <script src="js/vendor/fontkit.umd.min.js"></script>
     <script src="js/app.js"></script>
   </body>
 </html>

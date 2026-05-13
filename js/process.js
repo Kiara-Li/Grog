@@ -136,6 +136,75 @@
     });
   }
 
+  /** Pottery silhouettes (same assets as homepage); paths relative to process.html in site root. */
+  var PUZZ_FILES = ["Group 196.png", "Group 197.png", "Group 198.png", "Group 201.png"];
+
+  function puzzSrc(filename) {
+    return "puzz/" + encodeURIComponent(filename);
+  }
+
+  function shuffleInPlace(arr) {
+    for (var i = arr.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = arr[i];
+      arr[i] = arr[j];
+      arr[j] = t;
+    }
+    return arr;
+  }
+
+  function pickPuzzCount() {
+    if (typeof window.matchMedia === "function" && window.matchMedia("(min-width: 900px)").matches) return 3;
+    return 2;
+  }
+
+  function horizontalSlots(n) {
+    if (n === 2) {
+      var x1 = rand(10, 30);
+      var x2 = rand(Math.max(x1 + 30, 58), 92);
+      return [x1, x2];
+    }
+    var a = rand(8, 24);
+    var b = rand(38, 56);
+    var c = rand(70, 90);
+    if (b - a < 20) b = Math.min(56, a + 22 + rand(0, 6));
+    if (c - b < 20) c = Math.min(92, b + 22 + rand(0, 6));
+    return [a, b, c];
+  }
+
+  function initProcessPuzzStrip() {
+    var sections = document.querySelectorAll(".process-section.process-section--wash");
+    if (!sections.length || !PUZZ_FILES.length) return;
+
+    sections.forEach(function (sec) {
+      var strip = document.createElement("div");
+      strip.className = "process-puzz-strip";
+      strip.setAttribute("aria-hidden", "true");
+
+      var names = PUZZ_FILES.slice();
+      shuffleInPlace(names);
+      var n = pickPuzzCount();
+      var chosen = names.slice(0, n);
+      var xs = horizontalSlots(chosen.length);
+
+      chosen.forEach(function (file, i) {
+        var img = document.createElement("img");
+        img.className = "process-puzz-fig";
+        img.src = puzzSrc(file);
+        img.alt = "";
+        img.decoding = "async";
+        img.loading = "lazy";
+        img.style.left = xs[i].toFixed(1) + "%";
+        img.style.transform =
+          "translateX(-50%) rotate(" + rand(-4.2, 4.2).toFixed(2) + "deg)";
+        img.style.height = rand(0.92, 1.08).toFixed(2) + "em";
+        strip.appendChild(img);
+      });
+
+      sec.appendChild(strip);
+    });
+  }
+
   function observeSections() {
     var sections = document.querySelectorAll(".process-section");
     if (!sections.length) return;
@@ -166,6 +235,7 @@
   function init() {
     observeSections();
     initCarousels();
+    initProcessPuzzStrip();
   }
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);

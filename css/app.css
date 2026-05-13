@@ -1,17 +1,17 @@
 /* Grog showcase — static layout */
 @font-face {
-  font-family: "Grog";
-  src: url("../fonts/Grog-Regular_3.otf") format("opentype");
+  font-family: "Grog-Regular_Kiara";
+  src: url("../fonts/Grog-Regular_Kiara.otf") format("opentype");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 
 :root {
-  --font-body: "Grog", ui-monospace, monospace;
-  --font-display: "Grog", ui-monospace, monospace;
-  --font-size-nav-brand: 0.75rem;
-  --letter-spacing-nav-brand: 0.3em;
+  --font-body: "Grog-Regular_Kiara", ui-monospace, monospace;
+  --font-display: "Grog-Regular_Kiara", ui-monospace, monospace;
+  --font-size-nav-brand: 0.9rem;
+  --letter-spacing-nav-brand: 0;
   --color-bg-page: #f5f0e8;
   --color-ink: #2a1a0a;
   --color-ink-brown: #3d2b1a;
@@ -31,9 +31,9 @@
   --color-slide-track: #3d2b1a;
   --color-btn-pdf-bg: #2a1a0a;
   --padding-nav: 1.5rem 2rem;
-  --font-size-process-h2: clamp(1.5rem, 3.2vw, 2.25rem);
+  --font-size-process-h2: clamp(1.65rem, 3.35vw, 2.45rem);
   --font-size-process-body: 1rem;
-  --font-size-process-back-link: 0.8rem;
+  --font-size-process-back-link: 0.95rem;
   --line-height-prose: 1.65;
   --process-section-gap: clamp(2rem, 5vw, 4rem);
 }
@@ -141,7 +141,7 @@ a.nav-brand:hover {
 }
 
 .kiln-readout-label {
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   margin-top: 0.5rem;
   color: #2a1a0a;
   opacity: 0.55;
@@ -160,6 +160,8 @@ a.nav-brand:hover {
 }
 
 .hero-word {
+  position: relative;
+  z-index: 2;
   display: flex;
   font-size: clamp(7rem, 16vw, 20rem);
   transition: color 0.18s ease;
@@ -170,15 +172,50 @@ a.nav-brand:hover {
   transition: transform 0.08s ease-out;
 }
 
-.hero-stage {
+/* Hero pottery silhouettes — column widths match Figma bbox widths 288 : 449 : 368 : 462 */
+.hero-puzz {
   position: absolute;
-  left: 2rem;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 1rem;
-  text-transform: uppercase;
-  letter-spacing: 0.3em;
-  transition: opacity 0.06s ease, color 0.18s ease;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1;
+  padding: 0 clamp(0.75rem, 2.5vw, 2rem) clamp(0.35rem, 1.5vh, 1.25rem);
+  pointer-events: none;
+}
+
+.hero-puzz-row {
+  display: grid;
+  grid-template-columns: 288fr 449fr 368fr 462fr;
+  gap: clamp(8px, 1.1vw, 20px);
+  width: min(94vw, 96rem);
+  max-width: 100%;
+  margin: 0 auto;
+  align-items: end;
+}
+
+.hero-puzz-slot {
+  min-width: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.hero-puzz-frame {
+  width: 100%;
+  aspect-ratio: var(--puzz-ar);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.hero-puzz-img {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  object-position: center bottom;
 }
 
 /* Specimen */
@@ -309,13 +346,6 @@ a.nav-brand:hover {
   font-weight: 400;
 }
 
-.spec-rule {
-  width: 3rem;
-  height: 1px;
-  background: #c4622d;
-  margin-bottom: 2rem;
-}
-
 .spec-copy {
   font-size: 1rem;
   line-height: 1.625;
@@ -327,14 +357,6 @@ a.nav-brand:hover {
 
 .spec-copy p:last-of-type {
   margin-bottom: 0;
-}
-
-.spec-meta {
-  margin-top: 3rem;
-  font-size: 8px;
-  text-transform: uppercase;
-  letter-spacing: 0.4em;
-  color: #c4622d;
 }
 
 /* Type tester */
@@ -377,7 +399,7 @@ a.nav-brand:hover {
 .tester-base,
 .tester-glaze,
 .tester-input {
-  font-family: "Grog", sans-serif;
+  font-family: "Grog-Regular_Kiara", sans-serif;
   font-weight: 400;
   font-style: normal;
   line-height: 1;
@@ -465,10 +487,15 @@ a.nav-brand:hover {
 
 .ctrl-block label,
 .ctrl-head {
-  font-size: 9px;
+  font-size: 11px;
   text-transform: uppercase;
-  letter-spacing: 0.3em;
+  letter-spacing: 0;
   color: #b8afa0;
+}
+
+.ctrl-val {
+  font-size: 11px;
+  color: #e8dcc8;
 }
 
 .ctrl-row {
@@ -476,11 +503,6 @@ a.nav-brand:hover {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1rem;
-}
-
-.ctrl-val {
-  font-size: 9px;
-  color: #e8dcc8;
 }
 
 .toggle-row {
@@ -493,9 +515,9 @@ a.nav-brand:hover {
   height: 52px;
   border: 1px solid;
   cursor: pointer;
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   text-transform: uppercase;
-  letter-spacing: 0.2em;
+  letter-spacing: 0;
   font-family: inherit;
   transition: border-color 0.2s, background-color 0.2s, color 0.2s;
 }
@@ -549,9 +571,9 @@ a.nav-brand:hover {
 }
 
 .color-section-label {
-  font-size: 10px;
+  font-size: 12px;
   text-transform: uppercase;
-  letter-spacing: 0.4em;
+  letter-spacing: 0;
   color: #c4622d;
   display: block;
   margin-bottom: 0.75rem;
@@ -559,9 +581,9 @@ a.nav-brand:hover {
 }
 
 .swatch-label {
-  font-size: 8px;
+  font-size: 10px;
   text-transform: uppercase;
-  letter-spacing: 0.3em;
+  letter-spacing: 0;
   color: #8a7060;
   margin-bottom: 0.5rem;
 }
@@ -595,6 +617,7 @@ a.nav-brand:hover {
 
 .char-left {
   width: 50vw;
+  min-width: 0;
   background: #f5f0e8;
   padding: 3rem;
   display: flex;
@@ -603,9 +626,9 @@ a.nav-brand:hover {
 }
 
 .char-section-title {
-  font-size: 9px;
+  font-size: 13px;
   text-transform: uppercase;
-  letter-spacing: 0.4em;
+  letter-spacing: 0;
   color: #c4622d;
   margin-bottom: 2rem;
 }
@@ -621,13 +644,23 @@ a.nav-brand:hover {
   gap: 0.2rem;
   flex-wrap: wrap;
   line-height: 1.4;
+  min-width: 0;
+}
+
+.char-row--fit-placeholder {
+  flex-wrap: nowrap;
 }
 
 .char-glyph {
-  font-size: clamp(1.7rem, 2.65vw + 0.35rem, 2.45rem);
+  font-size: clamp(2.65rem, 4.15vw + 0.7rem, 3.65rem);
   color: #2a1a0a;
   cursor: crosshair;
   transition: transform 0.2s ease;
+}
+
+.char-glyph--placeholder {
+  flex-shrink: 1;
+  min-width: 0;
 }
 
 .char-glyph:hover {
@@ -647,9 +680,9 @@ a.nav-brand:hover {
   position: absolute;
   top: 3rem;
   left: 3rem;
-  font-size: 9px;
+  font-size: 11px;
   text-transform: uppercase;
-  letter-spacing: 0.4em;
+  letter-spacing: 0;
   color: #c4622d;
 }
 
@@ -666,9 +699,9 @@ a.nav-brand:hover {
 
 .char-preview-code {
   margin-top: 2rem;
-  font-size: 9px;
+  font-size: 11px;
   text-transform: uppercase;
-  letter-spacing: 0.3em;
+  letter-spacing: 0;
   color: #c4622d;
 }
 
@@ -696,17 +729,17 @@ a.nav-brand:hover {
 }
 
 .glaze-sub {
-  font-size: 0.875rem;
+  font-size: 1rem;
   color: rgba(61, 43, 26, 0.6);
   margin: 0 0 3rem;
   text-transform: uppercase;
-  letter-spacing: 0.3em;
+  letter-spacing: 0;
 }
 
 .field-label {
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   text-transform: uppercase;
-  letter-spacing: 0.3em;
+  letter-spacing: 0;
   color: rgba(61, 43, 26, 0.6);
   display: block;
   margin-bottom: 1rem;
@@ -719,12 +752,15 @@ a.nav-brand:hover {
 }
 
 .cone-btn {
+  box-sizing: border-box;
   padding: 0.75rem 1rem;
-  border: 1px solid;
+  border: 2px solid transparent;
+  background: #e8e2da;
+  color: #3d2b1a;
   cursor: pointer;
   font-family: inherit;
   text-align: center;
-  transition: border-color 0.2s, background-color 0.2s, color 0.2s;
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s, transform 0.15s ease;
 }
 
 .cone-btn .cone-name {
@@ -744,16 +780,17 @@ a.nav-brand:hover {
 }
 
 .glaze-card {
+  box-sizing: border-box;
   width: 100%;
-  height: 100px;
-  border: 1px solid #b8afa0;
+  height: 104px;
+  border: 2px solid transparent;
   cursor: pointer;
   text-align: left;
   overflow: hidden;
   padding: 0;
   font-family: inherit;
-  background: transparent;
-  transition: border 0.2s;
+  background: #ebe6df;
+  transition: border-color 0.2s, transform 0.15s ease;
 }
 
 .glaze-card-swatch {
@@ -770,9 +807,9 @@ a.nav-brand:hover {
 }
 
 .glaze-card-label span {
-  font-size: 8px;
+  font-size: 10px;
   text-transform: uppercase;
-  letter-spacing: 0.3em;
+  letter-spacing: 0;
   color: #3d2b1a;
   text-align: center;
 }
@@ -801,14 +838,14 @@ a.nav-brand:hover {
 .btn-fire {
   width: 100%;
   padding: 1rem 1.5rem;
-  border: 1px solid #c4622d;
+  border: none;
   background: #c4622d;
   color: #f5f0e8;
   cursor: pointer;
   font-family: inherit;
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   text-transform: uppercase;
-  letter-spacing: 0.3em;
+  letter-spacing: 0;
   transition: opacity 0.2s, background 0.2s;
 }
 
@@ -823,7 +860,7 @@ a.nav-brand:hover {
 
 .glaze-right {
   width: 50vw;
-  background: #f5f0e8;
+  background: #e0d9cf;
   padding: 4rem;
   display: flex;
   flex-direction: column;
@@ -840,9 +877,9 @@ a.nav-brand:hover {
   color: #e8dcc8;
   cursor: pointer;
   font-family: inherit;
-  font-size: 11px;
+  font-size: 13px;
   text-transform: uppercase;
-  letter-spacing: 0.3em;
+  letter-spacing: 0;
   transition: opacity 0.2s;
   /* Texture: overlay reads much stronger than luminosity on this brown */
   background-color: #2a1a0a;
@@ -870,7 +907,7 @@ a.nav-brand:hover {
   position: relative;
   width: 400px;
   height: 520px;
-  box-shadow: 2px 2px 0 #c4a882, 4px 4px 0 #a8907a;
+  box-shadow: none;
   transition: background-color 1.5s ease;
 }
 
@@ -906,15 +943,15 @@ a.nav-brand:hover {
 }
 
 .tile-card-footer .line1 {
-  font-size: 11px;
+  font-size: 13px;
   text-transform: uppercase;
-  letter-spacing: 0.3em;
+  letter-spacing: 0;
   color: #3d2b1a;
   margin-bottom: 0.25rem;
 }
 
 .tile-card-footer .line2 {
-  font-size: 9px;
+  font-size: 11px;
   color: #8a7060;
 }
 
@@ -936,11 +973,10 @@ a.nav-brand:hover {
 @keyframes kilnGlow {
   0%,
   100% {
-    box-shadow: 2px 2px 0 #c4a882, 4px 4px 0 #a8907a, 0 0 0 rgba(196, 98, 45, 0);
+    box-shadow: none;
   }
   50% {
-    box-shadow: 2px 2px 0 #c4a882, 4px 4px 0 #a8907a, 0 0 80px rgba(196, 98, 45, 0.8),
-      inset 0 0 40px rgba(196, 98, 45, 0.3);
+    box-shadow: 0 0 72px rgba(196, 98, 45, 0.55), inset 0 0 48px rgba(196, 98, 45, 0.28);
   }
 }
 

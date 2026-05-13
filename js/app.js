@@ -4,6 +4,13 @@
   /** En dash (U+2013); Grog maps this slot for punctuation. */
   const ND = "\u2013";
 
+  /**
+   * Placeholder after `>` (U+003E): show the font’s **.notdef** vessel (no Unicode points at .notdef by name).
+   * We use U+FFFE (BMP noncharacter), which is usually absent from cmap so shaping draws this font’s .notdef.
+   * If you see the wrong glyph, pick an unmapped codepoint in your build or map U+FFFE to that glyph in the font.
+   */
+  const PLACEHOLDER_CHAR = "\uFFFE";
+
   const coneTemps = [
     { name: "Cone 04", temp: 1060 },
     { name: "Cone 6", temp: 1222 },
@@ -45,7 +52,7 @@
     "nopqrstuvwxyz",
     "0123456789",
     "$.,!?&\u201C\u201D\u2018\u2019#*:;",
-    "@%(){}+\u2013_=/\\<>",
+    "@%(){}+\u2013_=/\\<>" + PLACEHOLDER_CHAR,
   ];
 
   const GLYPH_SWATCHES = ["#2A1A0A", "#E8DCC8", "#C4622D", "#8B5A3A", "#D4956A", "#6B4428", "#E8C49A"];
@@ -190,16 +197,6 @@
     const maxT = 1280;
     const u = Math.max(0, Math.min(1, (t - minT) / (maxT - minT)));
     return interpolateColor("#3D2A22", "#FF4A2E", u);
-  }
-
-  function getFiringStageLabel() {
-    const t = state.temperature;
-    if (t < 200) return "UNFIRED CLAY";
-    if (t < 500) return "BONE DRY";
-    if (t < 800) return "BISQUE FIRE";
-    if (t < 1000) return "PEAK FIRING";
-    if (t < 1150) return "GLAZE MELTING";
-    return "COOLED & GLAZED";
   }
 
   function calculateLetterScale(index) {
@@ -377,7 +374,7 @@
 
     let fontBytes;
     try {
-      const fontUrl = new URL("fonts/Grog-Regular_3.otf", window.location.href).href;
+      const fontUrl = new URL("fonts/Grog-Regular_Kiara.otf", window.location.href).href;
       const res = await fetch(fontUrl);
       if (!res.ok) throw new Error("font " + res.status);
       fontBytes = await res.arrayBuffer();
@@ -386,55 +383,83 @@
       return;
     }
 
+    if (typeof window.fontkit === "undefined") {
+      window.alert("Fontkit is missing. Check that js/vendor/fontkit.umd.min.js is loaded.");
+      return;
+    }
     let pdfDoc;
     let grogFont;
     try {
       pdfDoc = await PDFDocument.create();
-      grogFont = await pdfDoc.embedFont(fontBytes);
+      pdfDoc.registerFontkit(window.fontkit);
+      /* Full embed: subsetting here often strips glyphs used later → wrong cmap / "garbage" punctuation. */
+      grogFont = await pdfDoc.embedFont(fontBytes, { subset: false });
     } catch (err) {
-      window.alert("Could not embed the font in the PDF.");
+      console.error("PDF font embed failed:", err);
+      window.alert("Could not embed the font in the PDF. See console for details.");
       return;
     }
 
-    const page = pdfDoc.addPage([595, 842]);
-    const H = page.getHeight();
-    const margin = 56;
-    const ink = rgb(0.16, 0.09, 0.04);
-    const rawC = hexToPdfRgb(rawHex);
-    const firedC = hexToPdfRgb(firedHex);
-    const sw = 76;
-    const gap = 22;
-    const hexSize = 22;
-
-    let t = H - margin;
-    page.drawText("GROG", { x: margin, y: t, size: 44, font: grogFont, color: ink });
-    t -= 50;
-    const subtitle = glazeName + " " + ND + " " + cone.name;
-    page.drawText(subtitle, { x: margin, y: t, size: 13, font: grogFont, color: ink });
-
-    function drawSwatchRow(label, fillRgb, hexDisp, boxBottom) {
-      page.drawText(label, { x: margin, y: boxBottom + sw + 14, size: 10, font: grogFont, color: ink });
-      page.drawRectangle({
-        x: margin,
-        y: boxBottom,
-        width: sw,
-        height: sw,
-        color: rgb(fillRgb.r, fillRgb.g, fillRgb.b),
-        borderColor: rgb(0.32, 0.26, 0.18),
-        borderWidth: 0.75,
-      });
-      page.drawText(hexDisp, {
-        x: margin + sw + gap,
-        y: boxBottom + 24,
-        size: hexSize,
-        font: grogFont,
-        color: ink,
-      });
+    function drawCentered(text, cx, y, size, color) {
+      const w = grogFont.widthOfTextAtSize(text, size);
+      page.drawText(text, { x: cx - w / 2, y: y, size: size, font: grogFont, color: color });
     }
 
-    const firstBoxBottom = t - 96;
-    drawSwatchRow("RAW", rawC, rawHex, firstBoxBottom);
-    drawSwatchRow("FIRED", firedC, firedHex, firstBoxBottom - sw - 58);
+    const page = pdfDoc.addPage([595, 842]);
+    const W = page.getWidth();
+    const H = page.getHeight();
+    const margin = 56;
+    const gapY = 28;
+    const ink = rgb(0.16, 0.09, 0.04);
+    const cream = rgb(0.929, 0.894, 0.827);
+    const pageBg = rgb(0.961, 0.941, 0.91);
+
+    page.drawRectangle({ x: 0, y: 0, width: W, height: H, color: pageBg });
+
+    const cardWidth = W - 2 * margin;
+    const cardHeight = (H - 2 * margin - gapY) / 2;
+    const topPortionH = cardHeight * 0.65;
+    const bottomPortionH = cardHeight - topPortionH;
+    const upperGlaze = glazeName.toUpperCase();
+    const coneLine = upperGlaze + " " + ND + " " + cone.name + " " + ND + " " + cone.temp + "\u00B0C";
+
+    function drawTile(fillHex, hexCaption, stateLabel, bottomY) {
+      const fill = hexToPdfRgb(fillHex);
+      const contrast = hexToPdfRgb(getContrastColor(fillHex));
+
+      page.drawRectangle({
+        x: margin,
+        y: bottomY + bottomPortionH,
+        width: cardWidth,
+        height: topPortionH,
+        color: rgb(fill.r, fill.g, fill.b),
+      });
+      page.drawRectangle({
+        x: margin,
+        y: bottomY,
+        width: cardWidth,
+        height: bottomPortionH,
+        color: cream,
+      });
+
+      drawCentered(stateLabel, margin + cardWidth / 2, bottomY + cardHeight - 28, 10, rgb(contrast.r, contrast.g, contrast.b));
+
+      const hexSize = 64;
+      drawCentered(
+        hexCaption,
+        margin + cardWidth / 2,
+        bottomY + bottomPortionH + (topPortionH - hexSize) / 2 + hexSize * 0.22,
+        hexSize,
+        rgb(contrast.r, contrast.g, contrast.b)
+      );
+
+      drawCentered(coneLine, margin + cardWidth / 2, bottomY + bottomPortionH / 2 + 2, 11, ink);
+    }
+
+    const card1Bottom = H - margin - cardHeight;
+    const card2Bottom = card1Bottom - gapY - cardHeight;
+    drawTile(rawHex, rawHex, "RAW", card1Bottom);
+    drawTile(firedHex, firedHex, "FIRED", card2Bottom);
 
     const bytes = await pdfDoc.save();
     const blob = new Blob([bytes], { type: "application/pdf" });
@@ -449,8 +474,9 @@
   }
 
   function getCharUnicode(char) {
-    const code = char.charCodeAt(0).toString(16).toUpperCase().padStart(4, "0");
-    return `U+${code}`;
+    const cp = char.codePointAt(0);
+    const hex = cp.toString(16).toUpperCase();
+    return "U+" + (cp <= 0xffff ? hex.padStart(4, "0") : hex);
   }
 
   function applyTesterTypography(fontSize, letterSpacing, lineHeight) {
@@ -552,12 +578,7 @@
     const t = state.temperature;
     const heat = kilnReadoutColorAtTemp(t);
     const word = document.getElementById("hero-word");
-    const stage = document.getElementById("hero-stage");
     if (word) word.style.color = heat;
-    if (stage) {
-      stage.style.color = heat;
-      stage.textContent = getFiringStageLabel();
-    }
     letters.forEach(function (_, i) {
       const el = letterEls[i];
       if (el) el.style.transform = "scale(" + calculateLetterScale(i) + ")";
@@ -710,25 +731,37 @@
   }
 
   function updateConeButtons() {
+    const cream = "#f5f0e8";
     document.querySelectorAll("[data-cone-idx]").forEach(function (btn) {
       const idx = parseInt(btn.getAttribute("data-cone-idx"), 10);
       const on = state.selectedCone === idx;
-      btn.style.borderColor = on ? "#3D2B1A" : "#B8AFA0";
-      btn.style.backgroundColor = on ? "#3D2B1A" : "transparent";
-      btn.style.color = on ? "#F5F0E8" : "#3D2B1A";
+      btn.style.boxShadow = "none";
+      btn.style.border = on ? "2px solid " + cream : "2px solid transparent";
+      btn.style.backgroundColor = on ? "#3D2B1A" : "#e8e2da";
+      btn.style.color = on ? cream : "#3D2B1A";
+      btn.style.transform = on ? "scale(1.02)" : "none";
     });
   }
 
   function updateGlazeCards() {
+    const cream = "#f5f0e8";
     document.querySelectorAll("[data-raw-idx]").forEach(function (btn) {
       const idx = parseInt(btn.getAttribute("data-raw-idx"), 10);
       const on = state.selectedRawGlaze === idx;
-      btn.style.border = on ? "2px solid #3D2B1A" : "1px solid #B8AFA0";
+      btn.style.boxShadow = "none";
+      btn.style.border = on ? "2px solid " + cream : "2px solid transparent";
+      btn.style.transform = on ? "scale(1.02)" : "none";
+      const label = btn.querySelector(".glaze-card-label");
+      if (label) label.style.backgroundColor = on ? "#d8cec0" : "";
     });
     const customCard = document.querySelector("[data-raw-custom]");
     if (customCard) {
       const on = state.selectedRawGlaze === CUSTOM_GLAZE_INDEX;
-      customCard.style.border = on ? "2px solid #3D2B1A" : "1px solid #B8AFA0";
+      customCard.style.boxShadow = "none";
+      customCard.style.border = on ? "2px solid " + cream : "2px solid transparent";
+      customCard.style.transform = on ? "scale(1.02)" : "none";
+      const customLabel = customCard.querySelector(".glaze-card-label");
+      if (customLabel) customLabel.style.backgroundColor = on ? "#d8cec0" : "";
     }
     const customSwatch = document.getElementById("custom-color-swatch");
     const customPlus = document.getElementById("custom-plus");
@@ -757,9 +790,11 @@
     characterSet.forEach(function (row) {
       const rowEl = document.createElement("div");
       rowEl.className = "char-row";
+      if (row.indexOf(PLACEHOLDER_CHAR) !== -1) rowEl.classList.add("char-row--fit-placeholder");
       row.split("").forEach(function (ch) {
         const span = document.createElement("span");
         span.className = "char-glyph";
+        if (ch === PLACEHOLDER_CHAR) span.classList.add("char-glyph--placeholder");
         span.textContent = ch;
         span.dataset.char = ch;
         span.addEventListener("mouseenter", function () {
@@ -769,6 +804,40 @@
         rowEl.appendChild(span);
       });
       root.appendChild(rowEl);
+    });
+  }
+
+  let fitPlaceholderRaf = 0;
+  function scheduleFitCharacterPlaceholderRows() {
+    if (fitPlaceholderRaf) cancelAnimationFrame(fitPlaceholderRaf);
+    fitPlaceholderRaf = requestAnimationFrame(function () {
+      fitPlaceholderRaf = 0;
+      fitCharacterPlaceholderRows();
+    });
+  }
+
+  function fitCharacterPlaceholderRows() {
+    document.querySelectorAll(".char-row--fit-placeholder").forEach(function (row) {
+      const ph = row.querySelector(".char-glyph--placeholder");
+      if (!ph) return;
+      const glyphs = row.querySelectorAll(".char-glyph");
+      let ref = null;
+      for (let i = 0; i < glyphs.length; i++) {
+        if (glyphs[i] !== ph) {
+          ref = glyphs[i];
+          break;
+        }
+      }
+      if (!ref) return;
+      ph.style.fontSize = "";
+      const baseFs = parseFloat(window.getComputedStyle(ref).fontSize) || 48;
+      ph.style.fontSize = baseFs + "px";
+      let fs = baseFs;
+      let iter = 0;
+      while (row.scrollWidth > row.clientWidth + 1 && fs > baseFs * 0.42 && iter++ < 80) {
+        fs -= Math.max(0.75, baseFs * 0.018);
+        ph.style.fontSize = fs + "px";
+      }
     });
   }
 
@@ -951,6 +1020,12 @@
     updateTileCard();
     updateFireButton();
     updatePdfButton();
+
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(scheduleFitCharacterPlaceholderRows);
+    }
+    scheduleFitCharacterPlaceholderRows();
+    window.addEventListener("resize", scheduleFitCharacterPlaceholderRows);
   }
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
